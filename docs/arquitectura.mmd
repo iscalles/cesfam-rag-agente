@@ -1,0 +1,51 @@
+flowchart TB
+    subgraph Usuario["Personal CESFAM"]
+        U[Funcionario/a clínico o administrativo]
+    end
+
+    subgraph App["Capa de aplicación (Streamlit)"]
+        L[Login usuario / rol]
+        C[Interfaz de chat]
+    end
+
+    subgraph Agente["Agente CESFAM (src/rag_chain.py)"]
+        R[Enrutador de consulta]
+        M[Memoria de conversación]
+        G[Guardrail: umbral de similitud]
+        LLM[LLM Mistral - mistral-small-latest]
+        T[Registro de trazabilidad]
+    end
+
+    subgraph Indices["Índices vectoriales FAISS"]
+        VI[(Índice interno)]
+        VE[(Índice externo)]
+    end
+
+    subgraph Fuentes["Fuentes documentales"]
+        FI[Manual de procedimientos + FAQ\nfuente interna simulada]
+        FE[Guías GES MINSAL\n+ Calendario PNI\nfuente externa real]
+    end
+
+    subgraph Ingesta["Ingesta offline (src/ingest.py)"]
+        CH[Chunking]
+        EMB[Embeddings - mistral-embed]
+    end
+
+    U --> L --> C
+    C -->|pregunta| R
+    R --> M
+    R -->|busca en| VI
+    R -->|busca en| VE
+    VI --> G
+    VE --> G
+    G -->|hay respaldo| LLM
+    G -->|sin respaldo suficiente| C
+    LLM -->|respuesta + citas fuente/vigencia| C
+    LLM --> T
+    T -.log JSONL.-> Trazas[(logs/trazabilidad.jsonl)]
+
+    FI --> CH
+    FE --> CH
+    CH --> EMB
+    EMB --> VI
+    EMB --> VE

@@ -1,0 +1,11 @@
+{
+  "_comentario": "Usuarios de demo. Contraseña para ambos: cesfam2026. Cambiar antes de cualquier uso real.",
+  "enfermera.jefa": {
+    "password_hash": "f06edc76574c8267d2bf4f14a55304e2993c7742faa47d9b64f70c13a8be5f31",
+    "rol": "clinico"
+  },
+  "admin.cesfam": {
+    "password_hash": "f06edc76574c8267d2bf4f14a55304e2993c7742faa47d9b64f70c13a8be5f31",
+    "rol": "administrativo"
+  }
+}
