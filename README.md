@@ -1,6 +1,8 @@
 # Agente inteligente basado en LLM y RAG — CESFAM Lo Franco
 
 Proyecto EP1, asignatura ISY0101 - Ingeniería de Soluciones con IA
+(Duoc UC). Integrantes: Jose Salvatierra, Isabel Calles. Docente:
+Cristián Cárcamo.
 
 Agente conversacional de apoyo interno para el personal del CESFAM Lo
 Franco: responde consultas sobre protocolos internos y guías clínicas
@@ -55,6 +57,16 @@ Se abre en `http://localhost:8501`. Usuarios de demo (ver
 | `enfermera.jefa`   | `cesfam2026`| clinico        |
 | `admin.cesfam`     | `cesfam2026`| administrativo |
 
+## Interfaz
+
+La app usa la misma paleta del informe y el PPT (tema definido en
+`.streamlit/config.toml`). Al iniciar sesión, el panel lateral muestra el
+usuario/rol conectado y botones de "preguntas de ejemplo" para no tener
+que escribirlas a mano durante la demo. Cada respuesta muestra sus
+fuentes como tarjetas de color (verde azulado = fuente externa MINSAL,
+teal oscuro = fuente interna); si el guardrail rechaza responder, se
+muestra en un recuadro naranja en vez de una tarjeta de fuente.
+
 ## Preguntas de ejemplo para la demo
 
 - "¿Cuál es la meta de HbA1c para un adulto mayor frágil con diabetes
@@ -99,7 +111,8 @@ logs/
   definitivos.
 - El umbral `SIMILARITY_THRESHOLD` en `src/config.py` es un punto de
   partida: conviene afinarlo con pruebas reales y documentar en el
-  informe cómo se calibró.
+  informe cómo se calibró (parte de la "coherencia entre datos
+  recuperados y respuestas" que pide IE6).
 - Este es un proyecto académico simulado: no debe usarse con datos reales
   de pacientes ni conectarse a sistemas de producción del CESFAM.
 
@@ -108,4 +121,7 @@ logs/
 Se utilizó IA (Claude, Anthropic) como apoyo para: estructurar el código
 base del pipeline RAG, redactar la documentación técnica y generar
 resúmenes iniciales de las guías MINSAL a partir de las fuentes oficiales
-citadas en cada documento.
+citadas en cada documento. Las decisiones de diseño, la validación del
+contenido y las conclusiones/reflexiones del informe son del equipo.
+[Completar/ajustar esta declaración según lo efectivamente usado por
+ambos integrantes antes de entregar.]

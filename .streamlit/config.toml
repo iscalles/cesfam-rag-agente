@@ -1,0 +1,11 @@
+# Tema visual de la demo — misma paleta usada en el informe y el PPT
+# (teal CESFAM). Streamlit aplica esto automáticamente a botones,
+# inputs, chat input, etc. Ver docs/prompts.md / arquitectura.md para
+# el resto de la identidad visual del proyecto.
+[theme]
+base = "light"
+primaryColor = "#00A896"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#EAF6F6"
+textColor = "#16302F"
+font = "sans serif"

@@ -147,6 +147,7 @@ class AgenteCESFAM:
                     "archivo": doc.metadata["archivo"],
                     "fuente": doc.metadata["fuente"],
                     "vigencia": doc.metadata["vigencia"],
+                    "tipo": doc.metadata["tipo"],
                     "distancia": round(float(score), 4),
                 }
                 for doc, score in recuperados
