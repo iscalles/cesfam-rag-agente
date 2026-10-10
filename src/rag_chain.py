@@ -18,6 +18,7 @@ from datetime import datetime, timezone
 
 from langchain_community.vectorstores import FAISS
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langsmith import traceable
 
 from . import config
 
@@ -68,10 +69,16 @@ def _cargar_indice(tipo: str, embeddings):
     return FAISS.load_local(ruta, embeddings, allow_dangerous_deserialization=True)
 
 
+@traceable(name="enrutar", run_type="chain")
 def _enrutar(pregunta: str) -> list[str]:
     """Decide qué colección(es) de fuentes consultar según palabras clave.
     Ante ambigüedad, consulta ambas: en un contexto clínico es más seguro
     revisar de más que arriesgar dejar fuera una fuente relevante.
+
+    Decorado con @traceable: ChatOpenAI/OpenAIEmbeddings ya se auto-
+    instrumentan con LangSmith (leen LANGSMITH_TRACING del entorno), pero
+    este enrutamiento es lógica propia (no un componente de LangChain), así
+    que sin el decorador no aparecería en las trazas. Ver docs/langsmith.md.
     """
     texto = pregunta.lower()
     quiere_externa = any(c in texto for c in _CLAVES_EXTERNAS)
@@ -111,6 +118,7 @@ class AgenteCESFAM:
             "externa": _cargar_indice("externa", self.embeddings),
         }
 
+    @traceable(name="recuperar", run_type="retriever")
     def _recuperar(self, pregunta: str, k: int = 4):
         resultados = []
         for tipo in _enrutar(pregunta):
@@ -121,6 +129,7 @@ class AgenteCESFAM:
         resultados.sort(key=lambda par: par[1])  # menor distancia = más similar
         return resultados[:k]
 
+    @traceable(name="preguntar", run_type="chain")
     def preguntar(self, pregunta: str) -> dict:
         recuperados = self._recuperar(pregunta)
         hay_respaldo = bool(recuperados) and recuperados[0][1] <= config.SIMILARITY_THRESHOLD

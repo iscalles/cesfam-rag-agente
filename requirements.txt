@@ -19,3 +19,6 @@ faiss-cpu>=1.9
 # --- App de demo --------------------------------------------------------
 streamlit>=1.40
 python-dotenv>=1.0
+
+# --- Observabilidad y evaluación RAG (módulo IL1.4) --------------------
+langsmith>=0.10

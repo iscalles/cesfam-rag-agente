@@ -140,7 +140,7 @@ if st.session_state.agente is None:
             st.session_state.agente = AgenteCESFAM(usuario=usuario, rol=rol)
             st.rerun()
 
-    st.caption("Demo: usuario `enfermera.jefa` o `admin.cesfam`, contraseña `cesfam2026`.")
+    st.caption("Demo: usuario `enfermera.jefa` o `admin.cesfam`")
 
 else:
     with st.sidebar:

@@ -12,12 +12,14 @@ declarando explícitamente cuando no hay respaldo documental suficiente
 para responder.
 
 Ver `docs/arquitectura.md` para el diagrama y la justificación de
-componentes, y `docs/prompts.md` para la justificación de los prompts.
+componentes, `docs/prompts.md` para la justificación de los prompts, y
+`docs/langsmith.md` para la observabilidad y evaluación del agente.
 
 ## Requisitos
 
 - Python 3.10 a 3.13
 - Una API key gratuita de Mistral: https://console.mistral.ai/
+- Una API key gratuita de LangSmith: https://smith.langchain.com/
 
 ## Instalación
 
@@ -35,7 +37,7 @@ pip install -r requirements.txt
 
 # 4. Configurar credenciales
 cp .env.example .env
-# Editar .env y pegar tu LLM_API_KEY de Mistral
+# Editar .env y pegar tu LLM_API_KEY de Mistral y LangSmith
 ```
 
 ## Ejecución
@@ -79,6 +81,20 @@ muestra en un recuadro naranja en vez de una tarjeta de fuente.
   riesgo?" → pregunta fuera de las fuentes cargadas: el agente debe
   declarar que no cuenta con información suficiente, en vez de responder.
 
+## Evaluación con LangSmith
+
+El agente puede trazarse y evaluarse automáticamente con LangSmith (ver
+`docs/langsmith.md` para la explicación completa). Es opcional: sin
+configurarlo, el agente funciona exactamente igual.
+
+```bash
+# 1. (Opcional) API key gratuita en https://smith.langchain.com/ → pegarla
+#    en .env (LANGSMITH_API_KEY, LANGSMITH_TRACING=true)
+
+# 2. Correr el dataset de prueba (7 preguntas) con los evaluadores propios
+python scripts/evaluar_langsmith.py
+```
+
 ## Estructura del proyecto
 
 ```
@@ -88,7 +104,9 @@ src/
   auth.py                   # Autenticación usuario/rol
   ingest.py                 # Chunking + embeddings + construcción FAISS
   rag_chain.py               # Agente: enrutamiento, memoria, guardrail,
-                             # generación, trazabilidad
+                             # generación, trazabilidad (+ @traceable)
+scripts/
+  evaluar_langsmith.py       # Dataset + evaluadores propios (IL1.4)
 data/
   internal/                 # Manual de procedimientos y FAQ (simulados)
   external/                 # Guías GES MINSAL y calendario PNI (reales)
@@ -96,12 +114,13 @@ data/
 docs/
   arquitectura.md / .mmd / .png   # Diagrama y justificación (IE4/IE7)
   prompts.md                      # Justificación de prompts (IE2)
+  langsmith.md                    # Observabilidad y evaluación (IE5/IE6)
 logs/
   trazabilidad.jsonl         # Se genera al usar la app: evidencia de
                               # pruebas (cada pregunta, fuente y respuesta)
 ```
 
-## Notas importantes antes de la entrega final (semana 7)
+## Notas importantes
 
 - Los documentos en `data/external/` son **resúmenes** elaborados por el
   equipo a partir de las páginas y PDF oficiales de MINSAL/DIPRECE (las
@@ -109,10 +128,6 @@ logs/
   final, evaluar reemplazarlos por extractos más extensos o el PDF
   completo, y que sean validados por el equipo antes de citarlos como
   definitivos.
-- El umbral `SIMILARITY_THRESHOLD` en `src/config.py` es un punto de
-  partida: conviene afinarlo con pruebas reales y documentar en el
-  informe cómo se calibró (parte de la "coherencia entre datos
-  recuperados y respuestas" que pide IE6).
 - Este es un proyecto académico simulado: no debe usarse con datos reales
   de pacientes ni conectarse a sistemas de producción del CESFAM.
 
@@ -121,7 +136,4 @@ logs/
 Se utilizó IA (Claude, Anthropic) como apoyo para: estructurar el código
 base del pipeline RAG, redactar la documentación técnica y generar
 resúmenes iniciales de las guías MINSAL a partir de las fuentes oficiales
-citadas en cada documento. Las decisiones de diseño, la validación del
-contenido y las conclusiones/reflexiones del informe son del equipo.
-[Completar/ajustar esta declaración según lo efectivamente usado por
-ambos integrantes antes de entregar.]
+citadas en cada documento.
