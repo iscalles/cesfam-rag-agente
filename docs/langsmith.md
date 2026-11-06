@@ -63,11 +63,19 @@ propio ya cubre el mismo riesgo (alucinación) de forma más directa.
    `LANGSMITH_PROJECT`, `LANGSMITH_ENDPOINT` en `.env`): `ChatOpenAI` y
    `OpenAIEmbeddings` (de `langchain-openai`) se auto-instrumentan al
    detectar estas variables de entorno — no requieren cambios de código.
-2. **Decoradores `@traceable`** en `src/rag_chain.py` sobre `_enrutar`,
-   `_recuperar` y `preguntar`: son lógica propia del equipo (no componentes
-   nativos de LangChain), así que sin el decorador no aparecerían en las
-   trazas aunque el tracing esté activo. Con esto, una traza en LangSmith
-   muestra el árbol completo: enrutamiento → recuperación → generación.
+2. **Sin decoradores `@traceable` manuales.** En la EP1, `rag_chain.py` tenía
+   un flujo fijo (`_enrutar` → `_recuperar` → `preguntar`) escrito en Python
+   plano, así que esas funciones necesitaban `@traceable` para aparecer en la
+   traza. En la EP2 el agente se construye con `create_agent` (LangChain
+   sobre LangGraph, ver `src/agente.py`): el prompt dinámico, el modelo y
+   cada herramienta ya son componentes nativos de LangChain/LangGraph, por lo
+   que el tracing automático alcanza para ver el árbol completo (prompt →
+   decisión del LLM → llamada a herramienta → resultado → respuesta) sin
+   decoradores adicionales. Lo único que queda fuera del grafo (y por lo
+   tanto fuera de la traza) son las dos garantías deterministas que aplica
+   `AgenteCESFAM.preguntar()` después de que el grafo responde (guardrail
+   final y aviso de vigencia); no dependen del modelo, así que no necesitan
+   trazarse.
 3. **`scripts/evaluar_langsmith.py`**: dataset de 7 preguntas (las 4 del
    README más 3 adicionales) con el comportamiento esperado, evaluado con
    las 3 funciones descritas arriba. Si hay `LANGSMITH_API_KEY` configurada,
