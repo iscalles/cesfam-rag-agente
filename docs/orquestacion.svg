@@ -1,0 +1,184 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -14 1500 1074" width="1500" height="1074" font-family="Arial, Helvetica, sans-serif" font-size="14">
+  <defs>
+    <marker id="f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#4B6668"/>
+    </marker>
+  </defs>
+  <rect y="-14" width="1500" height="1074" fill="#FFFFFF"/>
+
+  <!-- ===== Fila 1: entrada ===== -->
+  <rect x="40" y="36" width="190" height="56" rx="28" fill="#EAF6F6" stroke="#04555C" stroke-width="1.5"/>
+  <text x="135" y="69" text-anchor="middle" fill="#16302F" font-weight="700">Personal CESFAM</text>
+
+  <rect x="290" y="36" width="240" height="56" rx="8" fill="#EAF6F6" stroke="#04555C" stroke-width="1.5"/>
+  <text x="410" y="60" text-anchor="middle" fill="#16302F" font-weight="700">Login usuario / rol</text>
+  <text x="410" y="80" text-anchor="middle" fill="#4B6668" font-size="12.5">src/auth.py</text>
+
+  <rect x="590" y="36" width="270" height="56" rx="8" fill="#EAF6F6" stroke="#04555C" stroke-width="1.5"/>
+  <text x="725" y="60" text-anchor="middle" fill="#16302F" font-weight="700">Interfaz de chat (Streamlit)</text>
+  <text x="725" y="80" text-anchor="middle" fill="#4B6668" font-size="12.5">app.py · panel de razonamiento</text>
+
+  <rect x="920" y="36" width="260" height="56" rx="8" fill="#EAF6F6" stroke="#04555C" stroke-width="1.5"/>
+  <text x="1050" y="60" text-anchor="middle" fill="#16302F" font-weight="700">Privacidad: RUT omitido</text>
+  <text x="1050" y="80" text-anchor="middle" fill="#4B6668" font-size="12.5">src/privacidad.py</text>
+
+  <g fill="none" stroke="#4B6668" stroke-width="1.5">
+    <path d="M230 64H286" marker-end="url(#f)"/>
+    <path d="M530 64H586" marker-end="url(#f)"/>
+    <path d="M860 64H916" marker-end="url(#f)"/>
+    <path d="M1050 92V136" marker-end="url(#f)"/>
+  </g>
+  <text x="888" y="56" text-anchor="middle" fill="#4B6668" font-size="12">pregunta</text>
+
+  <!-- ===== Fila 2: agente ===== -->
+  <rect x="40" y="140" width="1140" height="330" rx="12" fill="#F7FBFB" stroke="#04555C" stroke-width="2"/>
+  <text x="60" y="168" fill="#022F33" font-weight="700" font-size="16">Agente CESFAM · LangChain create_agent sobre LangGraph · src/agente.py</text>
+
+  <rect x="60" y="186" width="470" height="266" rx="8" fill="#FFFFFF" stroke="#9CC9C9" stroke-width="1.25"/>
+  <text x="80" y="212" fill="#04555C" font-weight="700">Middleware, en el orden en que se aplica</text>
+  <g fill="#16302F" font-size="13.5">
+    <text x="80" y="242"><tspan font-weight="700">1 PII</tspan> — omite RUT antes del modelo</text>
+    <text x="80" y="271"><tspan font-weight="700">2 Prompt dinámico</tspan> — reglas + permisos del rol + memoria</text>
+    <text x="80" y="300"><tspan font-weight="700">3 TodoList</tspan> — herramienta write_todos para planificar</text>
+    <text x="80" y="329"><tspan font-weight="700">4 Summarization</tspan> — resume conversaciones largas</text>
+    <text x="80" y="358"><tspan font-weight="700">5 ModelCallLimit</tspan> — máx. 10 llamadas por pregunta</text>
+    <text x="80" y="387"><tspan font-weight="700">6 ModelRetry</tspan> — reintenta con espera creciente</text>
+    <text x="80" y="416"><tspan font-weight="700">7 ModelFallback</tspan> — cambia al modelo de respaldo</text>
+  </g>
+  <text x="80" y="441" fill="#4B6668" font-size="12">Sólo los resultados de las herramientas llegan al LLM como contexto.</text>
+
+  <rect x="580" y="226" width="300" height="126" rx="10" fill="#04555C" stroke="#022F33" stroke-width="1.5"/>
+  <text x="730" y="256" text-anchor="middle" fill="#FFFFFF" font-weight="700" font-size="16">LLM Mistral</text>
+  <text x="730" y="280" text-anchor="middle" fill="#EAF6F6">decide el siguiente paso</text>
+  <text x="730" y="310" text-anchor="middle" fill="#EAF6F6" font-size="12.5">principal: mistral-small-latest</text>
+  <text x="730" y="330" text-anchor="middle" fill="#EAF6F6" font-size="12.5">respaldo: ministral-8b-latest</text>
+
+  <rect x="920" y="226" width="240" height="126" rx="10" fill="#00A896" stroke="#04555C" stroke-width="1.5"/>
+  <text x="1040" y="258" text-anchor="middle" fill="#FFFFFF" font-weight="700">Memoria de corto plazo</text>
+  <text x="1040" y="284" text-anchor="middle" fill="#FFFFFF" font-size="13">checkpointer por sesión</text>
+  <text x="1040" y="304" text-anchor="middle" fill="#FFFFFF" font-size="13">(InMemorySaver, thread_id)</text>
+  <text x="1040" y="328" text-anchor="middle" fill="#FFFFFF" font-size="13">+ resumen automático</text>
+
+  <g fill="none" stroke="#4B6668" stroke-width="1.5">
+    <path d="M530 289H576" marker-end="url(#f)"/>
+    <path d="M884 289H916" marker-start="url(#f)" marker-end="url(#f)"/>
+  </g>
+
+  <!-- Garantías y log -->
+  <rect x="1230" y="186" width="230" height="98" rx="8" fill="#FFF4EE" stroke="#E4572E" stroke-width="1.5"/>
+  <text x="1345" y="214" text-anchor="middle" fill="#16302F" font-weight="700">Garantías deterministas</text>
+  <text x="1345" y="240" text-anchor="middle" fill="#16302F" font-size="13">guardrail final (sin respaldo</text>
+  <text x="1345" y="258" text-anchor="middle" fill="#16302F" font-size="13">→ mensaje fijo) · aviso</text>
+  <text x="1345" y="276" text-anchor="middle" fill="#16302F" font-size="13">de vigencia antigua</text>
+
+  <path d="M1250 342 a95 12 0 0 0 190 0 v54 a95 12 0 0 1 -190 0z" fill="#00A896" stroke="#04555C" stroke-width="1.25"/>
+  <ellipse cx="1345" cy="342" rx="95" ry="12" fill="#2BB9A9" stroke="#04555C" stroke-width="1.25"/>
+  <text x="1345" y="384" text-anchor="middle" fill="#FFFFFF" font-size="13" font-weight="700">logs/trazabilidad.jsonl</text>
+
+  <g fill="none" stroke="#4B6668" stroke-width="1.5">
+    <path d="M1180 235H1226" marker-end="url(#f)"/>
+    <path d="M1345 284V326" marker-end="url(#f)"/>
+    <path d="M1345 186V16H725V32" marker-end="url(#f)"/>
+  </g>
+  <text x="1035" y="9" text-anchor="middle" fill="#4B6668" font-size="12">respuesta + fuentes + decisiones del agente</text>
+
+  <!-- ===== Fila 3: herramientas ===== -->
+  <g fill="none" stroke="#4B6668" stroke-width="1.5">
+    <path d="M255 474V516" marker-start="url(#f)" marker-end="url(#f)"/>
+    <path d="M685 474V516" marker-start="url(#f)" marker-end="url(#f)"/>
+    <path d="M1100 474V516" marker-start="url(#f)" marker-end="url(#f)"/>
+  </g>
+  <text x="700" y="500" fill="#4B6668" font-size="12">el LLM elige la herramienta y recibe su resultado</text>
+
+  <!-- CONSULTA -->
+  <rect x="40" y="520" width="430" height="226" rx="10" fill="#F4FBFB" stroke="#00A896" stroke-width="1.5"/>
+  <text x="255" y="548" text-anchor="middle" fill="#04555C" font-weight="700" font-size="15">CONSULTA</text>
+  <rect x="60" y="566" width="390" height="70" rx="8" fill="#FFFFFF" stroke="#00A896"/>
+  <text x="255" y="594" text-anchor="middle" fill="#16302F" font-weight="700">buscar_procedimientos_internos</text>
+  <text x="255" y="616" text-anchor="middle" fill="#4B6668" font-size="12.5">manual + FAQ · índice interno</text>
+  <rect x="60" y="656" width="390" height="70" rx="8" fill="#FFFFFF" stroke="#00A896"/>
+  <text x="255" y="684" text-anchor="middle" fill="#16302F" font-weight="700">buscar_guias_minsal</text>
+  <text x="255" y="706" text-anchor="middle" fill="#4B6668" font-size="12.5">GES HTA y DM2 + PNI · solo rol clínico</text>
+
+  <!-- RAZONAMIENTO -->
+  <rect x="510" y="520" width="350" height="226" rx="10" fill="#F7F6FC" stroke="#5B4FA8" stroke-width="1.5"/>
+  <text x="685" y="548" text-anchor="middle" fill="#3F3680" font-weight="700" font-size="15">RAZONAMIENTO</text>
+  <rect x="530" y="566" width="310" height="70" rx="8" fill="#FFFFFF" stroke="#5B4FA8"/>
+  <text x="685" y="594" text-anchor="middle" fill="#16302F" font-weight="700">verificar_vigencia</text>
+  <text x="685" y="616" text-anchor="middle" fill="#4B6668" font-size="12.5">calcula la antigüedad del documento</text>
+  <rect x="530" y="656" width="310" height="70" rx="8" fill="#FFFFFF" stroke="#5B4FA8"/>
+  <text x="685" y="684" text-anchor="middle" fill="#16302F" font-weight="700">write_todos</text>
+  <text x="685" y="706" text-anchor="middle" fill="#4B6668" font-size="12.5">plan de pasos y su avance</text>
+
+  <!-- ESCRITURA -->
+  <rect x="900" y="520" width="560" height="226" rx="10" fill="#FFF8F4" stroke="#E4572E" stroke-width="1.5"/>
+  <text x="1180" y="548" text-anchor="middle" fill="#B23F1C" font-weight="700" font-size="15">ESCRITURA</text>
+  <rect x="920" y="566" width="250" height="70" rx="8" fill="#FFFFFF" stroke="#E4572E"/>
+  <text x="1045" y="594" text-anchor="middle" fill="#16302F" font-weight="700">guardar_documento</text>
+  <text x="1045" y="616" text-anchor="middle" fill="#4B6668" font-size="12.5">material, fichas, resúmenes</text>
+  <rect x="1190" y="566" width="250" height="70" rx="8" fill="#FFFFFF" stroke="#E4572E"/>
+  <text x="1315" y="594" text-anchor="middle" fill="#16302F" font-weight="700">registrar_consulta_pendiente</text>
+  <text x="1315" y="616" text-anchor="middle" fill="#4B6668" font-size="12.5">vacíos de la base documental</text>
+  <rect x="1055" y="656" width="250" height="70" rx="8" fill="#FFFFFF" stroke="#E4572E"/>
+  <text x="1180" y="684" text-anchor="middle" fill="#16302F" font-weight="700">recordar_preferencia</text>
+  <text x="1180" y="706" text-anchor="middle" fill="#4B6668" font-size="12.5">memoria de largo plazo</text>
+
+  <!-- ===== Fila 4: datos ===== -->
+  <g stroke="#04555C" stroke-width="1.25">
+    <path d="M70 812 a80 11 0 0 0 160 0 v52 a80 11 0 0 1 -160 0z" fill="#00A896"/>
+    <ellipse cx="150" cy="812" rx="80" ry="11" fill="#2BB9A9"/>
+    <path d="M280 812 a80 11 0 0 0 160 0 v52 a80 11 0 0 1 -160 0z" fill="#00A896"/>
+    <ellipse cx="360" cy="812" rx="80" ry="11" fill="#2BB9A9"/>
+    <path d="M540 812 a145 11 0 0 0 290 0 v52 a145 11 0 0 1 -290 0z" fill="#00A896"/>
+    <ellipse cx="685" cy="812" rx="145" ry="11" fill="#2BB9A9"/>
+    <path d="M935 812 a85 11 0 0 0 170 0 v52 a85 11 0 0 1 -170 0z" fill="#00A896"/>
+    <ellipse cx="1020" cy="812" rx="85" ry="11" fill="#2BB9A9"/>
+    <path d="M1125 812 a110 11 0 0 0 220 0 v52 a110 11 0 0 1 -220 0z" fill="#00A896"/>
+    <ellipse cx="1235" cy="812" rx="110" ry="11" fill="#2BB9A9"/>
+    <path d="M1360 812 a55 11 0 0 0 110 0 v52 a55 11 0 0 1 -110 0z" fill="#00A896"/>
+    <ellipse cx="1415" cy="812" rx="55" ry="11" fill="#2BB9A9"/>
+  </g>
+  <g fill="#FFFFFF" font-size="13" font-weight="700" text-anchor="middle">
+    <text x="150" y="850">FAISS interno</text>
+    <text x="360" y="850">FAISS externo</text>
+    <text x="685" y="844">encabezados de documentos</text>
+    <text x="685" y="862" font-weight="400" font-size="12">(# Fuente / # Vigencia)</text>
+    <text x="1020" y="850">salidas/*.md</text>
+    <text x="1235" y="844">logs/consultas_</text>
+    <text x="1235" y="862">pendientes.jsonl</text>
+    <text x="1415" y="844">memoria/</text>
+    <text x="1415" y="862">usuario.json</text>
+  </g>
+
+  <g fill="none" stroke="#4B6668" stroke-width="1.5">
+    <path d="M150 746V796" marker-end="url(#f)"/>
+    <path d="M360 746V796" marker-end="url(#f)"/>
+    <path d="M685 746V796" marker-end="url(#f)"/>
+    <path d="M1020 746V796" marker-end="url(#f)"/>
+    <path d="M1235 746V796" marker-end="url(#f)"/>
+    <path d="M1415 746V796" marker-end="url(#f)"/>
+    <!-- memoria de largo plazo -> prompt dinámico -->
+    <path d="M1470 838H1488V455H1184" marker-end="url(#f)"/>
+  </g>
+  <text x="255" y="776" text-anchor="middle" fill="#4B6668" font-size="12">guardrail: descarta distancia &gt; 0,9</text>
+  <text x="1478" y="610" fill="#4B6668" font-size="12" transform="rotate(-90 1478 610)" text-anchor="middle">preferencias y sesión anterior → prompt dinámico</text>
+
+  <!-- ===== Ingesta offline ===== -->
+  <rect x="40" y="910" width="860" height="130" rx="10" fill="#FAFCFC" stroke="#9CC9C9" stroke-width="1.25" stroke-dasharray="5 4"/>
+  <text x="60" y="934" fill="#04555C" font-weight="700">Ingesta offline · src/ingest.py · se ejecuta al actualizar los documentos</text>
+  <rect x="60" y="952" width="240" height="70" rx="8" fill="#EAF6F6" stroke="#04555C"/>
+  <text x="180" y="980" text-anchor="middle" fill="#16302F" font-weight="700">Documentos fuente</text>
+  <text x="180" y="1002" text-anchor="middle" fill="#4B6668" font-size="12.5">manual y FAQ · GES y PNI</text>
+  <rect x="350" y="952" width="200" height="70" rx="8" fill="#EAF6F6" stroke="#04555C"/>
+  <text x="450" y="980" text-anchor="middle" fill="#16302F" font-weight="700">Chunking</text>
+  <text x="450" y="1002" text-anchor="middle" fill="#4B6668" font-size="12.5">800 caracteres / 120</text>
+  <rect x="600" y="952" width="200" height="70" rx="8" fill="#EAF6F6" stroke="#04555C"/>
+  <text x="700" y="980" text-anchor="middle" fill="#16302F" font-weight="700">Embeddings</text>
+  <text x="700" y="1002" text-anchor="middle" fill="#4B6668" font-size="12.5">mistral-embed</text>
+  <g fill="none" stroke="#4B6668" stroke-width="1.5">
+    <path d="M300 987H346" marker-end="url(#f)"/>
+    <path d="M550 987H596" marker-end="url(#f)"/>
+    <path d="M800 987H850V895H360V880" marker-end="url(#f)"/>
+    <path d="M360 895H150V880" marker-end="url(#f)"/>
+  </g>
+</svg>

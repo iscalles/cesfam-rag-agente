@@ -52,6 +52,16 @@ def _cargar_markdown(carpeta: str, tipo_fuente: str) -> list[Document]:
     return documentos
 
 
+def crear_splitter() -> RecursiveCharacterTextSplitter:
+    """Chunking: trozos de ~800 caracteres con 120 de solapamiento, cortando
+    de preferencia en títulos y párrafos (también lo usan las pruebas)."""
+    return RecursiveCharacterTextSplitter(
+        chunk_size=800,
+        chunk_overlap=120,
+        separators=["\n## ", "\n### ", "\n\n", "\n", ". ", " "],
+    )
+
+
 def construir_indices() -> None:
     embeddings = OpenAIEmbeddings(
         base_url=config.LLM_BASE_URL,
@@ -60,11 +70,7 @@ def construir_indices() -> None:
         check_embedding_ctx_length=False,
     )
 
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=800,
-        chunk_overlap=120,
-        separators=["\n## ", "\n### ", "\n\n", "\n", ". ", " "],
-    )
+    splitter = crear_splitter()
 
     os.makedirs(config.INDEX_DIR, exist_ok=True)
 

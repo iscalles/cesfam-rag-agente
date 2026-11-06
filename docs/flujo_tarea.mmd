@@ -1,0 +1,27 @@
+sequenceDiagram
+    autonumber
+    actor F as Funcionaria (rol clínico)
+    participant A as Agente (LLM + middleware)
+    participant T as Herramientas
+    participant D as FAISS / archivos
+    F->>A: "Prepara un material de inducción sobre derivaciones<br/>y el box de vacunas, y guárdalo" (RUT omitidos)
+    A->>T: write_todos: plan de 3 pasos
+    A->>T: buscar_procedimientos_internos("registrar derivación a especialidad")
+    T->>D: búsqueda vectorial + umbral (guardrail)
+    D-->>T: fragmentos con respaldo
+    T-->>A: texto + fuente + vigencia
+    A->>T: buscar_procedimientos_internos("horario box de vacunación")
+    T->>D: búsqueda vectorial + umbral
+    alt hay respaldo
+        D-->>T: fragmentos
+        T-->>A: texto + fuente + vigencia
+        A->>T: guardar_documento(título, contenido con fuentes)
+        T->>D: escribe salidas/AAAAMMDD-HHMMSS_induccion.md
+    else SIN_RESPALDO
+        T-->>A: SIN_RESPALDO
+        A->>T: reformula una vez o registrar_consulta_pendiente
+        Note over A: no escribe contenido sin fuente
+    end
+    A->>T: write_todos: pasos completados
+    Note over A: preguntar(): guardrail final, aviso de vigencia<br/>y registro en logs/trazabilidad.jsonl
+    A-->>F: respuesta + fuentes + descarga del documento + panel de razonamiento

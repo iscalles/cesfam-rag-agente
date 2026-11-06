@@ -1,103 +1,64 @@
-# Formulación de prompts (IE2)
+# Prompts e instrucciones del agente (EP2)
 
-Este documento justifica el diseño de los prompts del agente, para el
-apartado "Formulación de prompts" del informe.
+En un agente, las instrucciones no están solo en el prompt de sistema: también
+lo están las descripciones de cada herramienta, porque el LLM las lee para
+decidir cuál usar. Este documento reúne todos los textos que guían al agente.
+El prompt de la EP1 se conserva en [`ep1/prompts_ep1.md`](ep1/prompts_ep1.md).
 
-## 1. Prompt de sistema (`SYSTEM_PROMPT` en `src/rag_chain.py`)
+## 1. Prompt de sistema (`SYSTEM_PROMPT`, `src/agente.py`)
 
-```
-Eres el asistente interno del CESFAM Lo Franco. Apoyas únicamente al
-personal clínico y administrativo del centro; NO interactúas con
-pacientes, no entregas diagnósticos ni reemplazas el criterio clínico.
-
-Reglas obligatorias:
-1. Responde EXCLUSIVAMENTE con la información contenida en el CONTEXTO
-   entregado en el mensaje del usuario. No completes vacíos con
-   conocimiento general del modelo.
-2. Si el CONTEXTO no permite responder con certeza, dilo explícitamente
-   en vez de arriesgar una respuesta parcial o inventada.
-3. Toda afirmación debe cerrar con una línea "Fuente: <nombre del
-   documento> (vigencia: <fecha>)" por cada documento citado.
-4. Nunca proceses, solicites ni registres datos identificables de
-   pacientes (nombre, RUT, domicilio, etc.).
-```
-
-**Justificación de diseño:**
-
-- **Rol y alcance explícitos** (primer párrafo): fija el público (personal
-  del CESFAM) y excluye explícitamente el uso con pacientes o como
-  herramienta diagnóstica, en línea con la restricción declarada en la
-  propuesta ("el agente está dirigido exclusivamente al personal... no
-  diagnostica ni reemplaza el criterio clínico").
-- **Regla 1 (contexto cerrado):** es la instrucción central para
-  minimizar alucinaciones: obliga al modelo a fundamentar cada respuesta
-  únicamente en los chunks recuperados, no en su conocimiento
-  paramétrico. Esto es indispensable en un dominio clínico donde una
-  respuesta genérica del modelo puede estar desactualizada o ser
-  incorrecta para el protocolo local.
-- **Regla 2 (declarar incertidumbre):** operacionaliza el objetivo de la
-  propuesta de no completar respuestas cuando no hay respaldo suficiente.
-  Se refuerza además con un resguardo programático (umbral de similitud
-  en `rag_chain.py`) para no depender solo del criterio del LLM.
-- **Regla 3 (citación obligatoria):** traduce directamente el objetivo
-  "Asegurar que el 100% de las respuestas del agente citen su fuente y
-  fecha de vigencia del documento consultado" en una instrucción
-  verificable; además, el código adjunta las fuentes recuperadas de forma
-  independiente del texto generado por el LLM (ver `fuentes_usadas` en
-  `rag_chain.py`), como resguardo ante el caso de que el modelo omita la
-  cita.
-- **Regla 4 (protección de datos):** traduce la restricción de la
-  propuesta sobre la Ley N.º 20.584 y la Ley N.º 19.628 en una
-  instrucción explícita del sistema.
-
-## 2. Plantilla de consulta por turno (`_PLANTILLA_USUARIO`)
+Se arma en **cada llamada al modelo** con el middleware `dynamic_prompt`:
 
 ```
-Pregunta del personal: {pregunta}
-
-CONTEXTO RECUPERADO:
-{contexto}
+SYSTEM_PROMPT  +  sección del rol  +  memoria de largo plazo  +  instrucciones de planificación
 ```
 
-**Justificación:** separa claramente la pregunta original del usuario del
-contexto recuperado automáticamente, evitando que el modelo confunda
-ambas fuentes de información. Cada bloque de contexto se etiqueta con
-tipo de fuente (interna/externa), nombre del documento y fecha de
-vigencia, para que el modelo tenga directamente el material que debe
-citar (ver `rag_chain.py`, construcción de `contexto`).
+| Parte | Contenido | Cambia según |
+| --- | --- | --- |
+| Rol y alcance | Asistente interno; no atiende pacientes, no diagnostica | — |
+| Uso de herramientas | Cuándo buscar, verificar vigencia, guardar, registrar pendientes, recordar preferencias | — |
+| Regla 1 | Buscar antes de responder; usar solo lo que devuelven las herramientas | — |
+| Regla 2 | Ante `SIN_RESPALDO`: reformular una vez; si persiste, declararlo y registrar la consulta | — |
+| Regla 3 | Citar `Fuente: <documento> (vigencia: <fecha>)` y advertir vigencias a revisar | — |
+| Regla 4 | En preguntas de seguimiento, escribir consultas de búsqueda completas | — |
+| Regla 5 | No procesar datos identificables de pacientes; avisar si aparece `[RUT OMITIDO]` | — |
+| Regla 6 | Español, breve y directo | — |
+| Sección del rol (`_seccion_rol`) | Si el rol no tiene guías clínicas, no responder temas clínicos y derivar | Rol del usuario |
+| Memoria (`MemoriaLargoPlazo.como_contexto`) | Preferencias, documentos más consultados, consultas de la sesión anterior | Usuario y lo que el agente guardó |
+| Planificación (`PROMPT_PLANIFICACION`) | Usar `write_todos` solo en tareas de 3 o más pasos | — |
 
-## 3. Prompt de enrutamiento (`_enrutar`)
+## 2. Descripciones de herramientas (`src/herramientas.py`)
 
-En vez de usar una llamada adicional al LLM para clasificar cada consulta
-(lo que agrega latencia y costo), el enrutamiento usa un diccionario de
-palabras clave por tipo de fuente (clínicas/vacunación → externa;
-administrativas/procedimientos → interna). Ante ambigüedad, consulta
-ambas colecciones. Se documenta como una decisión de diseño deliberada:
-prioriza recall (no perder una fuente relevante) sobre precisión de
-enrutamiento, razonable en un contexto donde omitir una fuente clínica
-pertinente es más riesgoso que hacer una búsqueda de más.
+Cada docstring es la "instrucción" que el LLM ve para esa herramienta.
 
-## 4. Mensaje de respaldo insuficiente
+| Herramienta | Le dice al LLM |
+| --- | --- |
+| `buscar_procedimientos_internos` | Para temas operativos (registro, derivación, agenda, box, inducción); escribir la consulta completa |
+| `buscar_guias_minsal` | Para metas clínicas, fármacos según guía y vacunas por edad; escribir la consulta completa |
+| `verificar_vigencia` | Para saber si una guía está actualizada; acepta parte del nombre |
+| `guardar_documento` | Solo si el usuario pide un documento, solo con información de las búsquedas y con sus fuentes |
+| `registrar_consulta_pendiente` | Cuando no hay respaldo o la consulta queda fuera del alcance |
+| `recordar_preferencia` | Solo para preferencias estables de formato; nunca datos de pacientes |
+| `write_todos` (LangChain) | Plan de pasos para tareas complejas |
 
-```
-No cuento con información suficiente en las fuentes documentales
-disponibles para responder esta consulta. Se recomienda consultar
-directamente la guía correspondiente o a un/a profesional con mayor
-experiencia.
-```
+## 3. Respuestas de las herramientas como señal para el agente
 
-**Justificación:** mensaje fijo (no generado por el LLM) para garantizar
-que, ante la ausencia de respaldo documental, la respuesta sea siempre
-predecible, no alucinada, y redirija al personal hacia una fuente humana
-o documental confiable — coherente con la restricción de la propuesta de
-"declarar explícitamente esa limitación en lugar de completar la
-respuesta con conocimiento general del modelo".
+- `SIN_RESPALDO: ...` — la búsqueda no superó el umbral; el texto incluye la
+  mejor distancia y la instrucción de no responder con conocimiento general.
+- `estado: REVISAR: documento de 2018 (8 años)...` — cada fragmento trae el
+  estado de vigencia calculado, para que el agente lo advierta.
+- `ÍNDICE_NO_DISPONIBLE` — falta correr `python -m src.ingest`.
 
-## Declaración de uso de IA
+## 4. Mensajes fijos (no los genera el modelo)
 
-Los prompts anteriores fueron redactados con apoyo de Claude (Anthropic)
-para estructurar el texto y las reglas; la definición de qué reglas
-incluir (alcance, no alucinación, citación obligatoria, protección de
-datos) y su justificación técnica fueron definidas por el equipo en base
-a los requerimientos de la propuesta aprobada. [Completar por el equipo
-según lo efectivamente usado antes de entregar el informe.]
+| Mensaje | Cuándo |
+| --- | --- |
+| `_MENSAJE_SIN_RESPALDO` | Ninguna búsqueda del turno tuvo respaldo (garantía determinista) |
+| `_MENSAJE_SERVICIO_NO_DISPONIBLE` | Fallaron el modelo principal, los reintentos y el modelo de respaldo |
+| Aviso `⚠️ Vigencia` | Se citó un documento con más de 5 años y la respuesta no lo advertía |
+
+## Justificación de la redacción
+
+[Sección para el equipo: explicar con sus palabras por qué redactaron así las
+reglas y las descripciones de herramientas. La pauta no permite redactar
+justificaciones técnicas con IA.]

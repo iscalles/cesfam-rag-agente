@@ -1,0 +1,33 @@
+Resultado de las pruebas automatizadas — 06-11-2026 12:37
+Comando: python -m pytest -v
+Python 3.13.16 · langchain 1.4.9 · langgraph 1.2.20
+
+============================= test session starts ==============================
+platform linux -- Python 3.13.16, pytest-9.2.0, pluggy-1.7.0 -- python
+rootdir: /home/claude/ep2/cesfam-rag-agente-main
+plugins: langsmith-0.14.17, anyio-4.16.0
+collecting ... collected 21 items
+
+tests/test_agente.py::test_consulta_clinica_usa_guias_y_cita_fuente PASSED [  4%]
+tests/test_agente.py::test_sin_respaldo_reemplaza_respuesta_y_registra_pendiente PASSED [  9%]
+tests/test_agente.py::test_tarea_multipaso_planifica_consulta_y_escribe PASSED [ 14%]
+tests/test_agente.py::test_memoria_corto_plazo_mantiene_el_hilo PASSED   [ 19%]
+tests/test_agente.py::test_conversacion_larga_se_resume PASSED           [ 23%]
+tests/test_agente.py::test_memoria_largo_plazo_entre_sesiones PASSED     [ 28%]
+tests/test_agente.py::test_rol_administrativo_cambia_herramientas_y_prompt PASSED [ 33%]
+tests/test_agente.py::test_falla_del_modelo_principal_usa_respaldo PASSED [ 38%]
+tests/test_agente.py::test_falla_total_informa_sin_caerse PASSED         [ 42%]
+tests/test_agente.py::test_rut_no_llega_al_modelo_ni_al_log PASSED       [ 47%]
+tests/test_herramientas.py::test_anonimiza_rut_en_distintos_formatos PASSED [ 52%]
+tests/test_herramientas.py::test_vigencia_marca_documentos_antiguos PASSED [ 57%]
+tests/test_herramientas.py::test_verificar_vigencia_por_nombre_parcial PASSED [ 61%]
+tests/test_herramientas.py::test_busqueda_con_respaldo_devuelve_fuente_y_vigencia PASSED [ 66%]
+tests/test_herramientas.py::test_busqueda_sin_respaldo_no_entrega_texto_al_modelo PASSED [ 71%]
+tests/test_herramientas.py::test_rol_administrativo_no_tiene_guias_clinicas PASSED [ 76%]
+tests/test_herramientas.py::test_guardar_documento_escribe_markdown_sin_rut PASSED [ 80%]
+tests/test_herramientas.py::test_registrar_consulta_pendiente PASSED     [ 85%]
+tests/test_herramientas.py::test_recordar_preferencia_persiste_en_disco PASSED [ 90%]
+tests/test_integracion_api.py::test_formato_de_solicitudes_compatible_con_mistral PASSED [ 95%]
+tests/test_integracion_api.py::test_error_429_cambia_al_modelo_de_respaldo PASSED [100%]
+
+============================== 21 passed in 2.72s ==============================

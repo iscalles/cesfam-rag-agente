@@ -1,24 +1,23 @@
-# Dependencias — Agente RAG CESFAM Lo Franco (EP1 ISY0101)
-# Instalación local:  pip install -r requirements.txt
-#
-# Mismo stack usado en el repo de práctica del ramo (rama Mistral):
-# LangChain v1 + FAISS + Mistral (API compatible con OpenAI) + Streamlit.
-# Requiere Python >=3.10 y <3.14.
+# Dependencias — Agente CESFAM Lo Franco (EP2 ISY0101)
+# Instalación / actualización desde la EP1:
+#     pip install -r requirements.txt --upgrade
+# Requiere Python >=3.10 y <3.14. Versiones mínimas = las probadas.
 
-# --- Núcleo LLM / LangChain v1 ---------------------------------------
+# --- Agente: LangChain v1 (create_agent + middleware) sobre LangGraph ---
 openai>=2.0
-langchain>=1.0
-langchain-core>=1.0
-langchain-openai>=1.0
-langchain-community>=0.4        # aporta también `langchain-classic`
-langchain-classic>=1.0          # rutas legacy: .text_splitter
+langchain>=1.4,<2
+langchain-core>=1.7,<2
+langchain-openai>=1.7,<2
+langgraph>=1.2,<2
+langchain-community>=0.4        # FAISS
+langchain-classic>=1.0          # text_splitter
 
-# --- RAG --------------------------------------------------------------
+# --- RAG ---------------------------------------------------------------
 faiss-cpu>=1.9
 
-# --- App de demo --------------------------------------------------------
+# --- App de demo y configuración ----------------------------------------
 streamlit>=1.40
 python-dotenv>=1.0
 
-# --- Observabilidad y evaluación RAG (módulo IL1.4) --------------------
-langsmith>=0.10
+# --- Pruebas -------------------------------------------------------------
+pytest>=8
