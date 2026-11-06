@@ -4,7 +4,9 @@ Qué hace:
   1. Define un dataset de preguntas de prueba (ampliando las 4 del README),
      cada una con el comportamiento esperado: si debería responder citando
      una fuente puntual, o si debería rehusar por falta de respaldo.
-  2. Ejecuta el agente real (AgenteCESFAM) sobre cada pregunta.
+  2. Ejecuta el agente real (AgenteCESFAM, EP2) sobre cada pregunta, con un
+     usuario de evaluación dedicado para no mezclar su memoria de largo
+     plazo con la de personal real.
   3. Aplica 3 evaluadores propios, mapeados al diseño del guardrail del
      proyecto (no son las métricas RAGAS genéricas, sino chequeos directos
      de las reglas que el agente debe cumplir):
@@ -31,7 +33,10 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src import config  # noqa: E402
-from src.rag_chain import AgenteCESFAM  # noqa: E402
+from src.agente import AgenteCESFAM  # noqa: E402
+
+USUARIO_EVALUACION = "eval.langsmith"
+ROL_EVALUACION = "clinico"
 
 # ---------------------------------------------------------------------
 # 1. Dataset de evaluación
@@ -82,14 +87,26 @@ EJEMPLOS = [
 # 2. Función objetivo: ejecuta el agente real (sin pasar por el login
 #    de Streamlit — auth.autenticar() solo valida credenciales, el
 #    agente se puede instanciar directo con cualquier usuario/rol).
+#    Se usa un usuario de evaluación dedicado para no ensuciar la
+#    memoria de largo plazo del personal real (ver limpieza al final).
 # ---------------------------------------------------------------------
 def agente_objetivo(inputs: dict) -> dict:
-    agente = AgenteCESFAM(usuario="eval.langsmith", rol="clinico")
+    agente = AgenteCESFAM(usuario=USUARIO_EVALUACION, rol=ROL_EVALUACION)
     resultado = agente.preguntar(inputs["pregunta"])
     return {
         "respuesta": resultado["respuesta"],
         "fuentes": resultado["fuentes"],
     }
+
+
+def _limpiar_memoria_evaluacion() -> None:
+    """Borra el archivo de memoria de largo plazo que crea el usuario de
+    evaluación, para que correr este script no deje rastro en memoria/."""
+    from src.memoria import _nombre_archivo
+
+    ruta = os.path.join(config.MEMORIA_DIR, _nombre_archivo(USUARIO_EVALUACION))
+    if os.path.exists(ruta):
+        os.remove(ruta)
 
 
 # ---------------------------------------------------------------------
@@ -194,7 +211,12 @@ def _correr_local() -> None:
 
 
 if __name__ == "__main__":
-    if config.LANGSMITH_TRACING and os.getenv("LANGSMITH_API_KEY"):
-        _correr_con_langsmith()
-    else:
-        _correr_local()
+    try:
+        if config.LANGSMITH_TRACING and os.getenv("LANGSMITH_API_KEY"):
+            _correr_con_langsmith()
+        else:
+            _correr_local()
+    finally:
+        # El usuario de evaluación no debe quedar en memoria/ una vez
+        # terminada la corrida (real o de pruebas).
+        _limpiar_memoria_evaluacion()
