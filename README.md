@@ -44,8 +44,8 @@ agente funciona igual.
 
 ```bash
 # 1. Clonar el repo y entrar a la carpeta
-git clone https://github.com/iscalles/cesfam-rag-agent.git
-cd cesfam-rag-agent
+git clone https://github.com/iscalles/cesfam-rag-agente.git
+cd cesfam-rag-agente
 
 # 2. Crear y activar un entorno virtual
 python -m venv .venv
