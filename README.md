@@ -27,20 +27,25 @@ herramienta usar. Ver la [tabla de cambios](#cambios-respecto-de-la-ep1).
 6. [Planificación y toma de decisiones](#planificación-y-toma-de-decisiones)
 7. [Ejemplo de flujo de trabajo](#ejemplo-de-flujo-de-trabajo)
 8. [Pruebas y evidencias](#pruebas-y-evidencias)
-9. [Estructura del proyecto](#estructura-del-proyecto)
-10. [Decisiones de diseño](#decisiones-de-diseño)
-11. [Privacidad, seguridad y limitaciones](#privacidad-seguridad-y-limitaciones)
+9. [Evaluación con LangSmith](#evaluación-con-langsmith)
+10. [Estructura del proyecto](#estructura-del-proyecto)
+11. [Decisiones de diseño](#decisiones-de-diseño)
+12. [Privacidad, seguridad y limitaciones](#privacidad-seguridad-y-limitaciones)
 
 ---
 
 ## Instalación
 
 Requisitos: Python 3.10 a 3.13 y una API key gratuita de Mistral
-(https://console.mistral.ai/).
+(https://console.mistral.ai/). Opcionalmente, una API key gratuita de
+LangSmith (https://smith.langchain.com/) para observabilidad y evaluación
+(ver [Evaluación con LangSmith](#evaluación-con-langsmith)); sin ella el
+agente funciona igual.
 
 ```bash
-# 1. Entrar a la carpeta del proyecto
-cd cesfam-rag-agente-main
+# 1. Clonar el repo y entrar a la carpeta
+git clone https://github.com/iscalles/cesfam-rag-agent.git
+cd cesfam-rag-agent
 
 # 2. Crear y activar un entorno virtual
 python -m venv .venv
@@ -52,7 +57,8 @@ pip install -r requirements.txt --upgrade
 
 # 4. Configurar la API key
 copy .env.example .env          # Windows  (Mac/Linux: cp .env.example .env)
-# Abrir .env y pegar la key en LLM_API_KEY
+# Abrir .env y pegar la key en LLM_API_KEY (y, si vas a usar LangSmith,
+# LANGSMITH_API_KEY + LANGSMITH_TRACING=true)
 ```
 
 ## Ejecución
@@ -252,6 +258,33 @@ fuentes, decisiones, modelo y duración.
 
 ---
 
+## Evaluación con LangSmith
+
+El agente puede trazarse y evaluarse automáticamente con LangSmith (ver
+[`docs/langsmith.md`](docs/langsmith.md) para la explicación completa:
+qué es, cómo se implementó y por qué se usan 3 evaluadores propios en vez
+de las métricas RAGAS genéricas). Es opcional y externo al pipeline de
+respuesta: sin configurarlo, el agente funciona exactamente igual.
+
+```bash
+# 1. (Opcional) crear cuenta gratuita en https://smith.langchain.com/ y
+#    pegar la API key en .env (LANGSMITH_API_KEY, LANGSMITH_TRACING=true)
+
+# 2. Construir los índices si no existen
+python -m src.ingest
+
+# 3. Correr el dataset de prueba (7 preguntas) con los evaluadores propios
+python scripts/evaluar_langsmith.py
+```
+
+Sin `LANGSMITH_API_KEY`, el script corre igual en modo local y deja la
+evidencia en consola + `scripts/resultados_evaluacion.json`. Usa un
+usuario de evaluación dedicado (`eval.langsmith`) y borra su archivo de
+memoria de largo plazo al terminar, para no mezclarlo con `memoria/` del
+personal real.
+
+---
+
 ## Estructura del proyecto
 
 ```
@@ -265,12 +298,14 @@ src/
   memoria.py                 Memoria de largo plazo por usuario
   privacidad.py              Detección y omisión de RUT
 scripts/escenarios.py        Escenarios con la API real → evidencias/
+scripts/evaluar_langsmith.py Dataset + evaluadores propios (IL1.4)
 tests/                       Pruebas automatizadas (pytest), sin API
 data/internal, data/external Documentos fuente con # Fuente y # Vigencia
 docs/
   orquestacion.png / .svg    Diagrama de orquestación de componentes
   flujo_tarea.png / .mmd     Ejemplo de flujo de trabajo (secuencia)
   prompts.md                 Prompt de sistema y descripciones de herramientas
+  langsmith.md               Observabilidad y evaluación con LangSmith (IL1.4)
   ep1/                       Diagrama y prompts de la EP1 (referencia)
 evidencias/                  Resultados de pruebas y escenarios
 salidas/                     Documentos que escribe el agente (no se versionan)
