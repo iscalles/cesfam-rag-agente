@@ -74,3 +74,11 @@ PERMISOS_POR_ROL = {
         "recordar_preferencia",
     },
 }
+
+# --- LangSmith (observabilidad y evaluación — ver docs/langsmith.md) ---
+# LangChain/langsmith leen LANGSMITH_TRACING, LANGSMITH_API_KEY,
+# LANGSMITH_ENDPOINT directo desde las variables de entorno (ya cargadas
+# arriba por load_dotenv()); se exponen aquí solo para reutilizarlas desde
+# scripts/evaluar_langsmith.py y para loguear si el tracing está activo.
+LANGSMITH_TRACING = os.getenv("LANGSMITH_TRACING", "false").lower() == "true"
+LANGSMITH_PROJECT = os.getenv("LANGSMITH_PROJECT", "cesfam-rag-agent")
