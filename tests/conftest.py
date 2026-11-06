@@ -17,6 +17,7 @@ from langchain_community.vectorstores import FAISS
 from langchain_core.embeddings import Embeddings
 from langchain_core.language_models.fake_chat_models import GenericFakeChatModel
 from langchain_core.messages import AIMessage
+from langchain_core.outputs import ChatGeneration, ChatResult
 from pydantic import Field
 
 from src import config
@@ -48,6 +49,37 @@ class EmbeddingsDePrueba(Embeddings):
         return self._vector(texto)
 
 
+class _ColaMensajes:
+    """Envoltorio reutilizable sobre la lista de mensajes guionados.
+
+    `langchain-core` serializa los argumentos de cada llamada al modelo
+    (p. ej. al preparar la traza para LangSmith, incluso con
+    LANGSMITH_TRACING=false: la serialización corre antes de decidir si
+    se envía) iterando sobre este campo con un `for`. Si fuera un
+    iterador normal (como `iter(lista)`), esa serialización lo agotaría
+    antes de que el modelo "respondiera" de verdad, y el agente caería
+    siempre al modelo de respaldo. `__iter__` siempre entrega una
+    instantánea de lo que falta sin consumirlo; solo `sacar()` avanza.
+    """
+
+    def __init__(self, items):
+        self._items = list(items)
+        self._index = 0
+
+    def __iter__(self):
+        return iter(self._items[self._index:])
+
+    def __next__(self):
+        return self.sacar()
+
+    def sacar(self):
+        if self._index >= len(self._items):
+            raise StopIteration
+        item = self._items[self._index]
+        self._index += 1
+        return item
+
+
 class ModeloGuionado(GenericFakeChatModel):
     llamadas: list = Field(default_factory=list)
 
@@ -56,7 +88,9 @@ class ModeloGuionado(GenericFakeChatModel):
 
     def _generate(self, messages, stop=None, run_manager=None, **kwargs):
         self.llamadas.append(list(messages))
-        return super()._generate(messages, stop=stop, run_manager=run_manager, **kwargs)
+        mensaje = self.messages.sacar()
+        mensaje_ = AIMessage(content=mensaje) if isinstance(mensaje, str) else mensaje
+        return ChatResult(generations=[ChatGeneration(message=mensaje_)])
 
 
 class ModeloCaido(ModeloGuionado):
@@ -77,7 +111,7 @@ def guion(*pasos):
         else:
             mensajes.append(AIMessage(content="", tool_calls=[
                 {"name": n, "args": a, "id": f"llamada{i}{j}"} for j, (n, a) in enumerate(paso)]))
-    return ModeloGuionado(messages=iter(mensajes))
+    return ModeloGuionado(messages=_ColaMensajes(mensajes))
 
 
 @pytest.fixture(autouse=True)
